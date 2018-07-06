@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ja" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" type="text/css" href="./design.css" /><!--CSSの設定-->
+    <link rel="shortcut icon" href="./basketball.ico">  <!-- ファビコンの設定 -->
+    <title>new Window</title>
+
+    <style type="text/css">
+    #showMap {
+      width: 700px;
+      height: 400px;
+    }
+    </style>
+  </head>
+  <body>
+
+    <h1 id='title'></h1>
+    <div id="box" class='box'>
+      <p id='main_name'></p>
+      <p id='main_massage'></p>
+      <div id='response'></div>
+      <div id='response_'></div>
+
+
+    </div>
+
+<div id='showMap'></div>
+
+
+    <script>
+
+    //Google Mapを表示するための記述
+    var map;
+    var marker = [];
+    var infoWindow = [];
+    var markerData = [ // マーカーを立てる場所名・緯度・経度
+      {
+        name: '総合体育館',
+        lat: 35.902657,
+        lng: 139.813707,
+        link:"https://www.city.koshigaya.saitama.jp/toiawase/shisetsu/sportskouen/taiikukan/taiikukan-sogo.html"
+        // icon: 'tam.png' // TAM 東京のマーカーだけイメージを変更する
+      }, {
+        name: '越谷第一体育室',
+        lat: 35.891084,
+        lng: 139.790938,
+        link:"https://www.city.koshigaya.saitama.jp/toiawase/shisetsu/sportskouen/taiikukan/taiikukan-dai1.html"
+      }, {
+        name: '越谷第二体育室',
+        lat: 35.900024,
+        lng: 139.783507,
+        link:"https://www.city.koshigaya.saitama.jp/toiawase/shisetsu/sportskouen/taiikukan/taiikukan-dai2.html"
+      }, {
+        name: '越谷市立北体育館',
+        lat: 35.932619,
+        lng: 139.79809,
+        link:"https://www.city.koshigaya.saitama.jp/toiawase/shisetsu/sportskouen/taiikukan/taiikukan-kita.html"
+      }, {
+        name: '越谷市立南体育館',
+        lat: 35.864455,
+        lng: 139.815295,
+        link:"https://www.city.koshigaya.saitama.jp/toiawase/shisetsu/sportskouen/taiikukan/taiikukan-minami.html"
+      }, {
+        name: '越谷市立西体育館',
+        lat: 35.874094,
+        lng: 139.767524,
+        link:"https://www.city.koshigaya.saitama.jp/toiawase/shisetsu/sportskouen/taiikukan/taiikukan-nishi.html"
+      }
+    ];
+
+    function initMap() {
+      // 地図の作成
+      var mapLatLng = new google.maps.LatLng({lat: markerData[1]['lat'], lng: markerData[1]['lng']}); // 緯度経度のデータ作成
+      map = new google.maps.Map(document.getElementById('showMap'), { // #showMapに地図を埋め込む
+        center: mapLatLng, // 地図の中心を指定
+        zoom: 12.12 // 地図のズームを指定
+      });
+
+      // マーカー毎の処理
+      for (var i = 0; i < markerData.length; i++) {
+        markerLatLng = new google.maps.LatLng({lat: markerData[i]['lat'], lng: markerData[i]['lng']}); // 緯度経度のデータ作成
+        marker[i] = new google.maps.Marker({ // マーカーの追加
+
+          position: markerLatLng, // マーカーを立てる位置を指定
+          map: map, // マーカーを立てる地図を指定
+          icon: 'ball_marker.ico'
+        });
+
+        infoWindow[i] = new google.maps.InfoWindow({ // 吹き出しの追加
+          content: '<div class="showMap"><a href=' + markerData[i]["link"] +'>' + markerData[i]['name'] + '</a></div>' // 吹き出しに表示する内容
+
+        });
+
+        markerEvent(i); // マーカーにクリックイベントを追加
+      }
+
+      marker[0].setOptions({// マーカーのオプション設定
+        icon: {
+          url: markerData[0]['icon']// マーカーの画像を変更
+        }
+      });
+    }
+
+    // マーカーにクリックイベントを追加
+    function markerEvent(i) {
+      marker[i].addListener('click', function() { // マーカーをクリックしたとき
+        infoWindow[i].open(map, marker[i]); // 吹き出しの表示
+      });
+    }
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBUx_mOeGFZNcrMtADpg0a6U-ZWfSatJ6E&callback=initMap"></script>
+  </body>
+</html>

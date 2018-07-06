@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ja" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" type="text/css" href="./design.css" /><!--CSSの設定-->
+  <link rel="shortcut icon" href="./basketball.ico">  <!-- ファビコンの設定 -->
+  <title>バスケットボール人集めチャット</title>
+  <style type="text/css">
+  #showMap {
+    width: 700px;
+    height: 400px;
+  }
+  </style>
+</head>
+
+<body>
+  <input type="button" value="Googleを新しいウィンドウで開く" onclick="window.open('./chat2.html', null, 'width=800, height=800')">
+  <h2>バスケットボール人集めチャット</h2>
+  名前：<input id="name" type="text" value="名無しさん"/><!-- 名前の入力フォーム -->
+  　年齢：<input id="age" type="text" /><!-- 年齢の入力フォーム -->
+  <br />
+  コメント：<textarea id="massage" rows="4" cols="20"></textarea><!-- コメントの入力フォーム -->
+  <input id="send" type="button" value="送信" /><!-- 送信ボタン -->
+  <a href="https://www.city.koshigaya.saitama.jp/toiawase/shisetsu/sportskouen/taiikukan/taiikukan-sogo.html" target="_blank">
+    埼玉県越谷市　総合体育館公式ホームページ
+  </a>
+  <br>
+  <a href="http://cms.manmaruyoyaku2.jp/">まんまるよやく　ホームページ(外部)</a>
+  <!-- <div id="show" style="overflow:scroll;width:1400px;height:500px;border:solid 1px #ff0000">ここにチャットが表示される</div> -->
+  <div id="show">ここにチャットが表示される</div>
+
+  <div id="showMap"></div>
+  <script>
+  var show = document.getElementById('show');
+  var sendBtn = document.getElementById('send');
+  sendBtn.addEventListener('click',main_send);
+  showChat();
+
+
+
+  //チャットを表示するための関数
+  function showChat(){
+    show.innerText="";
+    var xhr = new XMLHttpRequest();
+    var url = "./show_chat.php";
+    xhr.open('GET',url,true);
+    xhr.onreadystatechange = function(){
+      if (xhr.readyState === 4 && xhr.status === 200){
+        var result = xhr.responseText;
+        var json = JSON.parse(result);
+
+        for(var i = 0; i < json.length; i++){
+          var box = show.appendChild(document.createElement("div"));
+          box.classList.add("box");
+          var p = box.appendChild(document.createElement("p"));
+          var p_massage = box.appendChild(document.createElement("p"));
+          var name = p.appendChild(document.createTextNode(json[i]['id']+"："+json[i]['name']+"("+json[i]['age']+"歳)"));
+          var deleteBtn_main = p.appendChild(document.createElement("input"));
+          deleteBtn_main.type = 'button';
+          deleteBtn_main.id = "deleteBtn_main"+json[i]['id'];
+          deleteBtn_main.value = "削除";
+          deleteBtn_main.addEventListener('click',main_deletion);
+
+          var massage = p_massage.appendChild(document.createTextNode(json[i]['massage']));
+
+          var div_response = box.appendChild(document.createElement("div"));
+          div_response.appendChild(document.createElement("hr"));
+          div_response.id="div_response"+json[i]['id'];
+
+          for(var j = 0; j < json[i]['children'].length; j++){
+            //div_response.appendChild(document.createTextNode(json[i]['children'][j]['hostid']));
+            div_response.appendChild(document.createTextNode(j+1+"："));
+            div_response.appendChild(document.createTextNode(json[i]['children'][j]['name']));
+            div_response.appendChild(document.createTextNode("("+json[i]['children'][j]['age']+"歳)"));
+            div_response.appendChild(document.createElement("br"));
+            div_response.appendChild(document.createTextNode(json[i]['children'][j]['massage']));
+            var deleteBtn_response = document.createElement("input");
+            deleteBtn_response.type = "button";
+            deleteBtn_response.value = "削除";
+            deleteBtn_response.id='deleteBtn_response'+json[i]['children'][j]['id'];
+
+            div_response.appendChild(deleteBtn_response);
+
+
+            deleteBtn_response.addEventListener('click',response_deletion);
+            div_response.appendChild(document.createElement("br"));
+            div_response.appendChild(document.createElement("br"));
+
+
+          }
+
+          var p_response = box.appendChild(document.createElement("p"));
+          var p2_response = box.appendChild(document.createElement("p"));
+
+
+          var response_name = document.createElement("input");
+          response_name.type="text";
+          response_name.id="response_name"+json[i]['id'];
+          response_name.value="名無しさん";
+          p_response.appendChild(document.createTextNode("名前："));
+          p_response.appendChild(response_name);
+
+          var response_age = document.createElement("input");
+          response_age.type="text";
+          response_age.id="response_age"+json[i]['id'];
+          p_response.appendChild(document.createTextNode("　年齢："));
+          p_response.appendChild(response_age);
+
+
+
+          var response_massage = p2_response.appendChild(document.createElement("textarea"));
+          response_massage.id="response_massage"+json[i]['id'];
+
+          var response_button = p2_response.appendChild(document.createElement("input"));
+          response_button.type="button";
+          response_button.id = "response_button"+json[i]['id'];
+          response_button.value = "返信";
+
+          var responseBtn = document.getElementById('response_button'+json[i]['id']);
+          responseBtn.addEventListener('click',response_send);
+
+          var newWindowBtn = document.createElement("input");
+          newWindowBtn.type= 'button';
+          newWindowBtn.value= json[i]['id']+'の内容を新しいウィンドウで表示';
+          newWindowBtn.id='newWindowBtn'+json[i]['id'];
+          p2_response.appendChild(newWindowBtn);
+          newWindowBtn.addEventListener('click', newWindow);
+        }
+      }
+    }
+    xhr.send(null);
+  }
+
+  //チャットにメインのコメントを追加する関数
+  function main_send(){
+    var name = document.getElementById('name');
+    var age = document.getElementById('age');
+    var massage = document.getElementById('massage');
+    var xhr = new XMLHttpRequest();
+    var url = "./main_send.php?name="+encodeURIComponent(name.value)+"&age="+encodeURIComponent(age.value)
+    +"&massage="+encodeURIComponent(massage.value);
+    xhr.open('GET', url, true);
+    xhr.onreadystatechange = function(){
+      if (xhr.readyState === 4 && xhr.status === 200){
+        name.value="名無しさん";
+        age.value="";
+        massage.value="";
+        showChat();
+      }
+    }
+    xhr.send(null);
+  };
+
+  //チャットに返答のコメントを追加する関数
+  function response_send(event){
+    var xhr = new XMLHttpRequest();
+    var hostid = event.target.id.slice(15);
+    var name = document.getElementById("response_name"+hostid);
+    var age = document.getElementById("response_age"+hostid);
+    var massage = document.getElementById("response_massage"+hostid);
+    var url = "./response_send.php?hostid="+encodeURIComponent(hostid)+"&name="+encodeURIComponent(name.value)+"&age="+encodeURIComponent(age.value)+"&massage="+encodeURIComponent(massage.value);
+    xhr.open('GET',url,true);
+    xhr.onreadystatechange = function(){
+      if(xhr.readyState === 4 && xhr.status === 200){
+        showChat();
+      }
+    }
+    xhr.send(null);
+  }
+
+  //メインのコメントを削除する関数
+  function main_deletion(event){
+    var xhr = new XMLHttpRequest();
+    var id = event.target.id.slice(14);
+    console.log(id);
+    var url = "./main_delete.php?id="+encodeURIComponent(id);
+    xhr.open('GET',url,true);
+    xhr.onreadystatechange = function(){
+      if(xhr.readyState === 4 && xhr.status === 200){
+        showChat();
+      }
+    }
+    xhr.send(null);
+  }
+
+  //返答のコメントを削除する関数
+  function response_deletion(event){
+    var xhr = new XMLHttpRequest();
+    var id = event.target.id.slice(18);
+    console.log(id);
+    var url = "./response_delete.php?id="+encodeURIComponent(id);
+    xhr.open('GET',url,true);
+    xhr.onreadystatechange = function(){
+      if(xhr.readyState === 4 && xhr.status === 200){
+        showChat();
+      }
+    }
+    xhr.send(null);
+  }
+
+
+  function newWindow(event){
+    var xhr = new XMLHttpRequest();
+    var id = event.target.id.slice(12);
+    const win = window.open('newChat.html');
+    console.log(id);
+    var url = "./newWindow.php?id="+encodeURIComponent(id);
+    xhr.open('GET',url,true);
+    xhr.onreadystatechange = function(){
+      if(xhr.readyState === 4 && xhr.status === 200){
+        var result = xhr.responseText;
+        var json = JSON.parse(result);
+
+        win.addEventListener('load',()=> {
+          var main_name = win.document.getElementById('main_name');
+          var main_massage = win.document.getElementById('main_massage');
+          var div_response = win.document.getElementById('response');
+
+          main_name.appendChild(document.createTextNode(json[0]['id']+"："+json[0]['name']));
+          main_massage.appendChild(document.createTextNode(json[0]['massage']));
+          main_massage.appendChild(document.createElement("hr"));
+
+          for(var i = 0; i<json[0]['children'].length ; i++){
+            div_response.appendChild(document.createTextNode(i+1+"："+json[0]['children'][i]['name']));
+            div_response.appendChild(document.createElement("br"));
+            div_response.appendChild(document.createTextNode(json[0]['children'][i]['massage']));
+            div_response.appendChild(document.createElement("br"));
+            div_response.appendChild(document.createElement("br"));
+          }
+        })
+      }
+    }
+    xhr.send(null);
+  }
+
+  // function openWindow() {
+  //   const win = window.open('./sub.html')
+  //   // console.log(win.document.body)
+  //   win.addEventListener('load', () => {
+  //     const elm = win.document.getElementById('hoge')
+  //     elm.innerText = 'hello'
+  //   })
+  // }
+
+
+
+
+  //Google Mapを表示するための記述
+  var map;
+  var marker = [];
+  var infoWindow = [];
+  var markerData = [ // マーカーを立てる場所名・緯度・経度
+    {
+      name: '総合体育館',
+      lat: 35.902657,
+      lng: 139.813707,
+      link:"https://www.city.koshigaya.saitama.jp/toiawase/shisetsu/sportskouen/taiikukan/taiikukan-sogo.html"
+      // icon: 'tam.png' // TAM 東京のマーカーだけイメージを変更する
+    }, {
+      name: '越谷第一体育室',
+      lat: 35.891084,
+      lng: 139.790938,
+      link:"https://www.city.koshigaya.saitama.jp/toiawase/shisetsu/sportskouen/taiikukan/taiikukan-dai1.html"
+    }, {
+      name: '越谷第二体育室',
+      lat: 35.900024,
+      lng: 139.783507,
+      link:"https://www.city.koshigaya.saitama.jp/toiawase/shisetsu/sportskouen/taiikukan/taiikukan-dai2.html"
+    }, {
+      name: '越谷市立北体育館',
+      lat: 35.932619,
+      lng: 139.79809,
+      link:"https://www.city.koshigaya.saitama.jp/toiawase/shisetsu/sportskouen/taiikukan/taiikukan-kita.html"
+    }, {
+      name: '越谷市立南体育館',
+      lat: 35.864455,
+      lng: 139.815295,
+      link:"https://www.city.koshigaya.saitama.jp/toiawase/shisetsu/sportskouen/taiikukan/taiikukan-minami.html"
+    }, {
+      name: '越谷市立西体育館',
+      lat: 35.874094,
+      lng: 139.767524,
+      link:"https://www.city.koshigaya.saitama.jp/toiawase/shisetsu/sportskouen/taiikukan/taiikukan-nishi.html"
+    }
+  ];
+
+  function initMap() {
+    // 地図の作成
+    var mapLatLng = new google.maps.LatLng({lat: markerData[1]['lat'], lng: markerData[1]['lng']}); // 緯度経度のデータ作成
+    map = new google.maps.Map(document.getElementById('showMap'), { // #showMapに地図を埋め込む
+      center: mapLatLng, // 地図の中心を指定
+      zoom: 12.12 // 地図のズームを指定
+    });
+
+    // マーカー毎の処理
+    for (var i = 0; i < markerData.length; i++) {
+      markerLatLng = new google.maps.LatLng({lat: markerData[i]['lat'], lng: markerData[i]['lng']}); // 緯度経度のデータ作成
+      marker[i] = new google.maps.Marker({ // マーカーの追加
+
+        position: markerLatLng, // マーカーを立てる位置を指定
+        map: map, // マーカーを立てる地図を指定
+        icon: 'ball_marker.ico'
+      });
+
+      infoWindow[i] = new google.maps.InfoWindow({ // 吹き出しの追加
+        content: '<div class="showMap"><a href=' + markerData[i]["link"] +'>' + markerData[i]['name'] + '</a></div>' // 吹き出しに表示する内容
+
+      });
+
+      markerEvent(i); // マーカーにクリックイベントを追加
+    }
+
+    marker[0].setOptions({// マーカーのオプション設定
+      icon: {
+        url: markerData[0]['icon']// マーカーの画像を変更
+      }
+    });
+  }
+
+  // マーカーにクリックイベントを追加
+  function markerEvent(i) {
+    marker[i].addListener('click', function() { // マーカーをクリックしたとき
+      infoWindow[i].open(map, marker[i]); // 吹き出しの表示
+    });
+  }
+  </script>
+  <script src=""></script>
+</body>
+</html>

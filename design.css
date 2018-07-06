@@ -1,0 +1,72 @@
+/* h2 {
+	text-align: center;
+	color: gray;
+	background-color: palegreen;
+	text-decoration-color: red;
+	text-decoration-line: underline;
+	border-style: inset;
+	border-color: blue;
+	border-width: 10pt;
+	padding: 10pt;
+} */
+
+h2{
+position: relative;
+background: #dfefff;
+box-shadow: 0px 0px 0px 5px #dfefff;
+border: dashed 2px white;
+padding: 0.2em 0.5em;
+color: #454545;
+}
+
+h2:after{
+position: absolute;
+content: '';
+left: -7px;
+top: -7px;
+border-width: 0 0 15px 15px;
+border-style: solid;
+border-color: #fff #fff #a8d4ff;
+box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.15);
+}
+
+input:focus {
+    border:solid 1px #EEA34A;
+}
+
+textarea:focus {
+    border:solid 1px #EEA34A;
+}
+
+/* body{
+	background-color:#aaff00;
+} */
+
+.box {
+    padding: 0.5em 1em;
+    margin: 2em 0;
+    font-weight: bold;
+    color: #6091d3;/*文字色*/
+    background: #FFF;
+    border: solid 3px #6091d3;/*線*/
+    border-radius: 10px;/*角の丸み*/
+    /* overflow: scroll;
+    width: 20;
+    height: 20; */
+}
+.box p {
+    margin: 0;
+    padding: 0;
+
+}
+
+textarea {
+  resize: none;
+  width:300px;
+  height:200px;
+}
+
+#showMap {
+    width: 700px;
+    height: 400px;
+}
