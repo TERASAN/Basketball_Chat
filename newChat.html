@@ -4,113 +4,452 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" type="text/css" href="./design.css" /><!--CSSの設定-->
-    <link rel="shortcut icon" href="./basketball.ico">  <!-- ファビコンの設定 -->
-    <title>new Window</title>
-
+    <link rel="stylesheet" type="text/css" href="./design.css" />
+    <!--CSSの設定-->
+    <link rel="shortcut icon" href="./basketball.ico">
+    <!-- ファビコンの設定 -->
+    <title>部屋</title>
     <style type="text/css">
-    #showMap {
-      width: 700px;
-      height: 400px;
-    }
-    </style>
+
+  .response{
+    height: 100px;
+    overflow: scroll;
+  }
+
+  #day{
+    float: right;
+
+  }
+  </style>
   </head>
   <body>
-
-    <h1 id='title'></h1>
-    <div id="box" class='box'>
-      <p id='main_name'></p>
-      <p id='main_massage'></p>
-      <div id='response'></div>
-      <div id='response_'></div>
-
-
-    </div>
-
-<div id='showMap'></div>
-
-
+    <h2>バスケットボール人集めチャット</h2>
+    <span id="day"></span>
+    <br>
+    <div id="show">ここにチャットが表示される</div>
+    <a href="http://cms.manmaruyoyaku2.jp/">まんまるよやく　ホームページ(外部)</a>
+    <form onsubmit="return false;">
+      <input type="text" value="越谷市" id="address">
+      <button type="button" value="検索" id="map_button">検索</button>
+      <select name="timei" id='pullvalue'>
+        <option value="埼玉県越谷市東越谷7-109-2">寺内家</option>
+        <option value="越谷市総合体育館">総合体育館</option>
+        <option value="越谷第一体育室">越谷第一体育室</option>
+        <option value="越谷第二体育室">越谷第二体育室</option>
+        <option value="越谷市立北体育館">越谷市立北体育館</option>
+        <option value="越谷市立南体育館">越谷市立南体育館</option>
+        <option value="越谷市立西体育館">越谷市立西体育館</option>
+        <option value="埼玉スタジアム">埼玉スタジアム</option>
+      </select>
+      <button type="button" value= ="プルダウンからの検索" name="button1" id="pulldown">プルダウンからの検索</button>
+    </form>
+    <div id="showMap" style="width: 700px; height: 400px"></div>
+    <!-- <div class="map_box01"><div id="map-canvas" style="width: 700px;height: 400px;"></div></div> -->
     <script>
 
-    //Google Mapを表示するための記述
-    var map;
-    var marker = [];
-    var infoWindow = [];
-    var markerData = [ // マーカーを立てる場所名・緯度・経度
-      {
-        name: '総合体育館',
-        lat: 35.902657,
-        lng: 139.813707,
-        link:"https://www.city.koshigaya.saitama.jp/toiawase/shisetsu/sportskouen/taiikukan/taiikukan-sogo.html"
-        // icon: 'tam.png' // TAM 東京のマーカーだけイメージを変更する
-      }, {
-        name: '越谷第一体育室',
-        lat: 35.891084,
-        lng: 139.790938,
-        link:"https://www.city.koshigaya.saitama.jp/toiawase/shisetsu/sportskouen/taiikukan/taiikukan-dai1.html"
-      }, {
-        name: '越谷第二体育室',
-        lat: 35.900024,
-        lng: 139.783507,
-        link:"https://www.city.koshigaya.saitama.jp/toiawase/shisetsu/sportskouen/taiikukan/taiikukan-dai2.html"
-      }, {
-        name: '越谷市立北体育館',
-        lat: 35.932619,
-        lng: 139.79809,
-        link:"https://www.city.koshigaya.saitama.jp/toiawase/shisetsu/sportskouen/taiikukan/taiikukan-kita.html"
-      }, {
-        name: '越谷市立南体育館',
-        lat: 35.864455,
-        lng: 139.815295,
-        link:"https://www.city.koshigaya.saitama.jp/toiawase/shisetsu/sportskouen/taiikukan/taiikukan-minami.html"
-      }, {
-        name: '越谷市立西体育館',
-        lat: 35.874094,
-        lng: 139.767524,
-        link:"https://www.city.koshigaya.saitama.jp/toiawase/shisetsu/sportskouen/taiikukan/taiikukan-nishi.html"
-      }
-    ];
+  var d = document.getElementById('day');
 
-    function initMap() {
-      // 地図の作成
-      var mapLatLng = new google.maps.LatLng({lat: markerData[1]['lat'], lng: markerData[1]['lng']}); // 緯度経度のデータ作成
-      map = new google.maps.Map(document.getElementById('showMap'), { // #showMapに地図を埋め込む
-        center: mapLatLng, // 地図の中心を指定
-        zoom: 12.12 // 地図のズームを指定
-      });
+  function showClock(){
+    //今日の日付データを変数todayに格納
+    var today =new Date();
 
-      // マーカー毎の処理
-      for (var i = 0; i < markerData.length; i++) {
-        markerLatLng = new google.maps.LatLng({lat: markerData[i]['lat'], lng: markerData[i]['lng']}); // 緯度経度のデータ作成
-        marker[i] = new google.maps.Marker({ // マーカーの追加
+    //時刻データを取得して変数timeに格納する
+    var time= new Date();
+    var week = today.getDay();
 
-          position: markerLatLng, // マーカーを立てる位置を指定
-          map: map, // マーカーを立てる地図を指定
-          icon: 'ball_marker.ico'
-        });
 
-        infoWindow[i] = new google.maps.InfoWindow({ // 吹き出しの追加
-          content: '<div class="showMap"><a href=' + markerData[i]["link"] +'>' + markerData[i]['name'] + '</a></div>' // 吹き出しに表示する内容
+    //年・月・日・曜日を取得する
+    var year = today.getFullYear();
+    var month = today.getMonth()+1;
+    var day = today.getDate();
+    var day_of_the_week= new Array("日","月","火","水","木","金","土");
 
-        });
+    //時・分・秒を取得する
+    var hour = time.getHours();
+    var minute = time.getMinutes();
+    var second = time.getSeconds();
 
-        markerEvent(i); // マーカーにクリックイベントを追加
-      }
+    d.innerText=year+"/"+month+"/"+ day +"("+day_of_the_week[week]+") "+setDigital(hour)+":"+setDigital(minute)+":"+setDigital(second);
+  }
 
-      marker[0].setOptions({// マーカーのオプション設定
-        icon: {
-          url: markerData[0]['icon']// マーカーの画像を変更
+  function setDigital(time){
+    if(time<10){
+      time = '0'+time;
+    }else{
+      time = time;
+    }
+    return time;
+  }
+  setInterval('showClock()',1000);
+  </script>
+    <script>
+  var url = window.location.href;
+  var id = url.slice(45);
+  console.log(url);
+  console.log(id);
+  document.title=id+"の部屋";
+
+
+
+
+
+
+  var show = document.getElementById('show');
+
+  showChat();
+
+
+
+  //チャットを表示するための関数
+  function showChat(){
+    show.innerText="";
+    showClock();
+    var xhr = new XMLHttpRequest();
+    var url = "./show_chat.php";
+    xhr.open('GET',url,true);
+    xhr.onreadystatechange = function(){
+      if (xhr.readyState === 4 && xhr.status === 200){
+        var result = xhr.responseText;
+        var json = JSON.parse(result);
+        console.log(json);
+
+        for(var i = 0; i < json.length; i++){
+          if(json[i][0]== id){
+            var box = show.appendChild(document.createElement("div"));
+            box.classList.add("box");
+            var p = box.appendChild(document.createElement("p"));
+            var p_massage = box.appendChild(document.createElement("p"));
+            var name = p.appendChild(document.createTextNode(json[i]['id']+"："+json[i]['name']+"("+json[i]['age']+"歳)"));
+            var deleteBtn_main = p.appendChild(document.createElement("input"));
+            deleteBtn_main.type = 'button';
+            deleteBtn_main.id = "deleteBtn_main"+json[i]['id'];
+            deleteBtn_main.value = "削除";
+            deleteBtn_main.addEventListener('click',main_deletion);
+
+            var massage = p_massage.appendChild(document.createTextNode(json[i]['massage']));
+
+            var div_response = box.appendChild(document.createElement("div"));
+            div_response.appendChild(document.createElement("hr"));
+            div_response.id="div_response"+json[i]['id'];
+
+            for(var j = 0; j < json[i]['children'].length; j++){
+              div_response.appendChild(document.createTextNode(j+1+"："));
+              div_response.appendChild(document.createTextNode(json[i]['children'][j]['name']));
+              div_response.appendChild(document.createTextNode("("+json[i]['children'][j]['age']+"歳)"));
+              div_response.appendChild(document.createElement("br"));
+              div_response.appendChild(document.createTextNode(json[i]['children'][j]['massage']));
+              var deleteBtn_response = document.createElement("input");
+              deleteBtn_response.type = "button";
+              deleteBtn_response.value = "削除";
+              deleteBtn_response.id='deleteBtn_response'+json[i]['children'][j]['id'];
+
+              div_response.appendChild(deleteBtn_response);
+
+
+              deleteBtn_response.addEventListener('click',response_deletion);
+              div_response.appendChild(document.createElement("br"));
+              div_response.appendChild(document.createElement("br"));
+
+
+            }
+
+            var p_response = box.appendChild(document.createElement("p"));
+            var p2_response = box.appendChild(document.createElement("p"));
+
+
+            var response_name = document.createElement("input");
+            response_name.type="text";
+            response_name.id="response_name"+json[i]['id'];
+            response_name.value="名無しさん";
+            p_response.appendChild(document.createTextNode("名前："));
+            p_response.appendChild(response_name);
+
+            var response_age = document.createElement("input");
+            response_age.type="text";
+            response_age.id="response_age"+json[i]['id'];
+            p_response.appendChild(document.createTextNode("　年齢："));
+            p_response.appendChild(response_age);
+
+
+
+            var response_massage = p2_response.appendChild(document.createElement("textarea"));
+            response_massage.id="response_massage"+json[i]['id'];
+
+            var response_button = p2_response.appendChild(document.createElement("input"));
+            response_button.type="button";
+            response_button.id = "response_button"+json[i]['id'];
+            response_button.value = "返信";
+
+            var responseBtn = document.getElementById('response_button'+json[i]['id']);
+            responseBtn.addEventListener('click',response_send);
+
+          }
+
+
         }
+      }
+    }
+    xhr.send(null);
+  }
+
+  //チャットにメインのコメントを追加する関数
+  function main_send(){
+    var name = document.getElementById('name');
+    var age = document.getElementById('age');
+    var massage = document.getElementById('massage');
+    if(!name.value || !age.value || !massage.value){
+      alert("投稿内容を入力してください。");
+      return;
+    }
+    var xhr = new XMLHttpRequest();
+    var url = "./main_send.php?name="+encodeURIComponent(name.value)+"&age="+encodeURIComponent(age.value)
+    +"&massage="+encodeURIComponent(massage.value);
+    xhr.open('GET', url, true);
+    xhr.onreadystatechange = function(){
+      if (xhr.readyState === 4 && xhr.status === 200){
+        name.value="名無しさん";
+        age.value="";
+        massage.value="";
+        showChat();
+      }
+    }
+    xhr.send(null);
+  };
+
+  //チャットに返答のコメントを追加する関数
+  function response_send(event){
+    var xhr = new XMLHttpRequest();
+    var hostid = event.target.id.slice(15);
+    var name = document.getElementById("response_name"+hostid);
+    var age = document.getElementById("response_age"+hostid);
+    var massage = document.getElementById("response_massage"+hostid);
+    if(!name.value || !age.value || !massage.value){
+      alert("返信内容を入力してください。");
+      return;
+    }
+    var url = "./response_send.php?hostid="+encodeURIComponent(hostid)+"&name="+encodeURIComponent(name.value)+"&age="+encodeURIComponent(age.value)+"&massage="+encodeURIComponent(massage.value);
+    xhr.open('GET',url,true);
+    xhr.onreadystatechange = function(){
+      if(xhr.readyState === 4 && xhr.status === 200){
+        showChat();
+      }
+    }
+    xhr.send(null);
+  }
+
+  //メインのコメントを削除する関数
+  function main_deletion(event){
+    var xhr = new XMLHttpRequest();
+    var id = event.target.id.slice(14);
+    console.log(id);
+    var url = "./main_delete.php?id="+encodeURIComponent(id);
+    xhr.open('GET',url,true);
+    xhr.onreadystatechange = function(){
+      if(xhr.readyState === 4 && xhr.status === 200){
+        showChat();
+      }
+    }
+    xhr.send(null);
+  }
+
+  //返答のコメントを削除する関数
+  function response_deletion(event){
+    var xhr = new XMLHttpRequest();
+    var id = event.target.id.slice(18);
+    console.log(id);
+    var url = "./response_delete.php?id="+encodeURIComponent(id);
+    xhr.open('GET',url,true);
+    xhr.onreadystatechange = function(){
+      if(xhr.readyState === 4 && xhr.status === 200){
+        showChat();
+      }
+    }
+    xhr.send(null);
+  }
+
+
+  // function openWindow() {
+  //   const win = window.open('./sub.html')
+  //   // console.log(win.document.body)
+  //   win.addEventListener('load', () => {
+  //     const elm = win.document.getElementById('hoge')
+  //     elm.innerText = 'hello'
+  //   })
+  // }
+
+
+
+
+  //Google Mapを表示するための記述
+  var map;
+  var marker = [];
+  var infoWindow = [];
+  var markerData = [ // マーカーを立てる場所名・緯度・経度
+    {
+      name: '総合体育館',
+      lat: 35.902657,
+      lng: 139.813707,
+      link:"https://www.city.koshigaya.saitama.jp/toiawase/shisetsu/sportskouen/taiikukan/taiikukan-sogo.html"
+      // icon: 'tam.png' // TAM 東京のマーカーだけイメージを変更する
+    }, {
+      name: '越谷第一体育室',
+      lat: 35.891084,
+      lng: 139.790938,
+      link:"https://www.city.koshigaya.saitama.jp/toiawase/shisetsu/sportskouen/taiikukan/taiikukan-dai1.html"
+    }, {
+      name: '越谷第二体育室',
+      lat: 35.900024,
+      lng: 139.783507,
+      link:"https://www.city.koshigaya.saitama.jp/toiawase/shisetsu/sportskouen/taiikukan/taiikukan-dai2.html"
+    }, {
+      name: '越谷市立北体育館',
+      lat: 35.932619,
+      lng: 139.79809,
+      link:"https://www.city.koshigaya.saitama.jp/toiawase/shisetsu/sportskouen/taiikukan/taiikukan-kita.html"
+    }, {
+      name: '越谷市立南体育館',
+      lat: 35.864455,
+      lng: 139.815295,
+      link:"https://www.city.koshigaya.saitama.jp/toiawase/shisetsu/sportskouen/taiikukan/taiikukan-minami.html"
+    }, {
+      name: '越谷市立西体育館',
+      lat: 35.874094,
+      lng: 139.767524,
+      link:"https://www.city.koshigaya.saitama.jp/toiawase/shisetsu/sportskouen/taiikukan/taiikukan-nishi.html"
+    }
+  ];
+
+  function initMap() {
+    // 地図の作成
+    var mapLatLng = new google.maps.LatLng({lat: markerData[1]['lat'], lng: markerData[1]['lng']}); // 緯度経度のデータ作成
+    map = new google.maps.Map(document.getElementById('showMap'), { // #showMapに地図を埋め込む
+      center: mapLatLng, // 地図の中心を指定
+      zoom: 12.12 // 地図のズームを指定
+    });
+
+    // マーカー毎の処理
+    for (var i = 0; i < markerData.length; i++) {
+      markerLatLng = new google.maps.LatLng({lat: markerData[i]['lat'], lng: markerData[i]['lng']}); // 緯度経度のデータ作成
+      marker[i] = new google.maps.Marker({ // マーカーの追加
+
+        position: markerLatLng, // マーカーを立てる位置を指定
+        map: map, // マーカーを立てる地図を指定
+        icon: 'ball_marker.ico'
       });
+
+      infoWindow[i] = new google.maps.InfoWindow({ // 吹き出しの追加
+        content: '<div class="showMap"><a href=' + markerData[i]["link"] +'>' + markerData[i]['name'] + '</a></div>' // 吹き出しに表示する内容
+
+      });
+
+      markerEvent(i); // マーカーにクリックイベントを追加
     }
 
-    // マーカーにクリックイベントを追加
-    function markerEvent(i) {
-      marker[i].addListener('click', function() { // マーカーをクリックしたとき
-        infoWindow[i].open(map, marker[i]); // 吹き出しの表示
-      });
-    }
-    </script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBUx_mOeGFZNcrMtADpg0a6U-ZWfSatJ6E&callback=initMap"></script>
+    marker[0].setOptions({// マーカーのオプション設定
+      icon: {
+        url: markerData[0]['icon']// マーカーの画像を変更
+      }
+    });
+  }
+
+  // マーカーにクリックイベントを追加
+  function markerEvent(i) {
+    marker[i].addListener('click', function() { // マーカーをクリックしたとき
+      infoWindow[i].open(map, marker[i]); // 吹き出しの表示
+    });
+  }
+
+
+  var getMap = (function() {
+  function codeAddress(address) {
+   // google.maps.Geocoder()コンストラクタのインスタンスを生成
+   var geocoder = new google.maps.Geocoder();
+
+   // 地図表示に関するオプション
+   var mapOptions = {
+     zoom: 16,
+     mapTypeId: google.maps.MapTypeId.ROADMAP
+   };
+
+   // 地図を表示させるインスタンスを生成
+   //var map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
+
+   //マーカー変数用意
+   var marker;
+
+   // geocoder.geocode()メソッドを実行
+   geocoder.geocode( { 'address': address}, function(results, status) {
+
+     // ジオコーディングが成功した場合
+     if (status == google.maps.GeocoderStatus.OK) {
+
+       // 変換した緯度・経度情報を地図の中心に表示
+       map.setCenter(results[0].geometry.location);
+       map.setZoom(16);
+
+       // マーカー設定
+       marker = new google.maps.Marker({
+         map: map,
+         position: results[0].geometry.location,
+         // icon: './baske/ball_marker.ico'
+       });
+       marker.setMap(null);
+
+     // ジオコーディングが成功しなかった場合
+     } else {
+       console.log('Geocode was not successful for the following reason: ' + status);
+     }
+   });
+
+   //マップをクリックで位置変更
+   map.addListener('click', function(e) {
+     getClickLatLng(e.latLng, map);
+   });
+
+   function getClickLatLng(lat_lng, map) {
+
+     // マーカーを設置
+     marker.setMap(null);
+
+     marker = new google.maps.Marker({
+       position: lat_lng,
+       map: map,
+     });
+     marker.setMap(null);
+
+     // 座標の中心をずらす
+     map.panTo(lat_lng);
+   }
+  }
+
+  //inputのvalueで検索して地図を表示
+  return {
+   getAddress: function() {
+     // ボタンに指定したid要素を取得
+     var button = document.getElementById("map_button");
+     var button1 = document.getElementById("pulldown");
+
+     // ボタンが押された時の処理
+     button.onclick = function() {
+       // フォームに入力された住所情報を取得
+       var address = document.getElementById("address").value;
+       // 取得した住所を引数に指定してcodeAddress()関数を実行
+       codeAddress(address);
+     }
+
+     button1.onclick = function() {
+       // フォームに入力された住所情報を取得
+       var address = document.getElementById("pullvalue").value;
+       // 取得した住所を引数に指定してcodeAddress()関数を実行
+       codeAddress(address);
+     }
+   }
+  };
+
+  })();
+
+getMap.getAddress();
+  </script>
+    <script src=""></script>
   </body>
 </html>

@@ -1,48 +1,120 @@
 <!DOCTYPE html>
 <html lang="ja" dir="ltr">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <link rel="stylesheet" type="text/css" href="./design.css" /><!--CSSの設定-->
-  <link rel="shortcut icon" href="./basketball.ico">  <!-- ファビコンの設定 -->
-  <title>バスケットボール人集めチャット</title>
-  <style type="text/css">
-  #showMap {
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" type="text/css" href="./design.css" />
+    <!--CSSの設定-->
+    <link rel="shortcut icon" href="./basketball.ico">
+    <!-- ファビコンの設定 -->
+    <title>バスケットボール人集めチャット</title>
+    <style type="text/css">
+  /* #showMap {
     width: 700px;
     height: 400px;
+  } */
+  .response{
+    height: 50px;
+    overflow: scroll;
+    /* background-color:red; */
+  }
+
+  #day{
+    float: right;
   }
   </style>
-</head>
+  </head>
+  <body>
+    <h2>バスケットボール人集めチャット</h2>名前：
+    <input id="name" type="text" value="名無しさん"/>
+    <!-- 名前の入力フォーム -->　年齢：
+    <input id="age" type="text" />
+    <!-- 年齢の入力フォーム -->
+    <span id="day">ここに時間を表示</span>
+    <br />コメント：
+    <textarea id="massage" rows="4" cols="20"></textarea>
+    <!-- コメントの入力フォーム -->
+    <input id="send" type="button" value="送信" />
+    <!-- 送信ボタン -->
+    <a href="https://www.city.koshigaya.saitama.jp/toiawase/shisetsu/sportskouen/taiikukan/taiikukan-sogo.html" target="_blank">埼玉県越谷市　総合体育館公式ホームページ </a>
+    <br>
+    <a href="http://cms.manmaruyoyaku2.jp/">まんまるよやく　ホームページ(外部)</a>
 
-<body>
-  <input type="button" value="Googleを新しいウィンドウで開く" onclick="window.open('./chat2.html', null, 'width=800, height=800')">
-  <h2>バスケットボール人集めチャット</h2>
-  名前：<input id="name" type="text" value="名無しさん"/><!-- 名前の入力フォーム -->
-  　年齢：<input id="age" type="text" /><!-- 年齢の入力フォーム -->
-  <br />
-  コメント：<textarea id="massage" rows="4" cols="20"></textarea><!-- コメントの入力フォーム -->
-  <input id="send" type="button" value="送信" /><!-- 送信ボタン -->
-  <a href="https://www.city.koshigaya.saitama.jp/toiawase/shisetsu/sportskouen/taiikukan/taiikukan-sogo.html" target="_blank">
-    埼玉県越谷市　総合体育館公式ホームページ
-  </a>
-  <br>
-  <a href="http://cms.manmaruyoyaku2.jp/">まんまるよやく　ホームページ(外部)</a>
-  <!-- <div id="show" style="overflow:scroll;width:1400px;height:500px;border:solid 1px #ff0000">ここにチャットが表示される</div> -->
-  <div id="show">ここにチャットが表示される</div>
+    <div id="show">ここにチャットが表示される</div>
+    <form onsubmit="return false;">
+      <input type="text" value="越谷市" id="address">
+      <button type="button" value="検索" id="map_button">検索</button>
+      <select name="timei" id='pullvalue'>
+        <option value="">--洗濯してください--</option>
+        <option value="越谷市">越谷市</option>
+        <option value="埼玉県越谷市東越谷7-109-2">寺内家</option>
+        <option value="越谷市総合体育館">総合体育館</option>
+        <option value="越谷第一体育室">越谷第一体育室</option>
+        <option value="越谷第二体育室">越谷第二体育室</option>
+        <option value="越谷市立北体育館">越谷市立北体育館</option>
+        <option value="越谷市立南体育館">越谷市立南体育館</option>
+        <option value="越谷市立西体育館">越谷市立西体育館</option>
+        <option value="埼玉スタジアム">埼玉スタジアム</option>
+      </select>
+      <button type="button" value= ="プルダウンからの検索" name="button1" id="pulldown">プルダウンからの検索</button>
+    </form>
+    <div id="showMap" style="width: 700px; height: 400px"></div>
+    <!-- <div class="map_box01"><div id="map-canvas" style="width: 700px;height: 400px;"></div></div> -->
+    <script>
 
-  <div id="showMap"></div>
-  <script>
+var d = document.getElementById('day');
+
+function showClock(){
+  //今日の日付データを変数todayに格納
+  var today =new Date();
+
+  //時刻データを取得して変数timeに格納する
+  var time= new Date();
+  var week = today.getDay();
+
+
+  //年・月・日・曜日を取得する
+  var year = today.getFullYear();
+  var month = today.getMonth()+1;
+  var day = today.getDate();
+  var day_of_the_week= new Array("日","月","火","水","木","金","土");
+
+  //時・分・秒を取得する
+  var hour = time.getHours();
+  var minute = time.getMinutes();
+  var second = time.getSeconds();
+
+  d.innerText=year+"/"+month+"/"+ day +"("+day_of_the_week[week]+") "+setDigital(hour)+":"+setDigital(minute)+":"+setDigital(second);
+}
+
+function setDigital(time){
+  if(time<10){
+    time = '0'+time;
+  }else{
+    time = time;
+  }
+  return time;
+}
+setInterval('showClock()',1000);
+</script>
+    <script>
   var show = document.getElementById('show');
   var sendBtn = document.getElementById('send');
   sendBtn.addEventListener('click',main_send);
+
+
+
+
   showChat();
+
 
 
 
   //チャットを表示するための関数
   function showChat(){
     show.innerText="";
+
     var xhr = new XMLHttpRequest();
     var url = "./show_chat.php";
     xhr.open('GET',url,true);
@@ -54,10 +126,13 @@
         for(var i = 0; i < json.length; i++){
           var box = show.appendChild(document.createElement("div"));
           box.classList.add("box");
-          var p = box.appendChild(document.createElement("p"));
-          var p_massage = box.appendChild(document.createElement("p"));
+          var div_main = box.appendChild(document.createElement("div"));
+          div_main.classList.add("main");
+          var p = div_main.appendChild(document.createElement("p"));
+          var p_massage = div_main.appendChild(document.createElement("p"));
           var name = p.appendChild(document.createTextNode(json[i]['id']+"："+json[i]['name']+"("+json[i]['age']+"歳)"));
           var deleteBtn_main = p.appendChild(document.createElement("input"));
+          div_main.appendChild(document.createElement("hr"));
           deleteBtn_main.type = 'button';
           deleteBtn_main.id = "deleteBtn_main"+json[i]['id'];
           deleteBtn_main.value = "削除";
@@ -66,11 +141,13 @@
           var massage = p_massage.appendChild(document.createTextNode(json[i]['massage']));
 
           var div_response = box.appendChild(document.createElement("div"));
-          div_response.appendChild(document.createElement("hr"));
+          // div_response.appendChild(document.createElement("hr"));
+          div_response.classList.add("response");
           div_response.id="div_response"+json[i]['id'];
 
+
           for(var j = 0; j < json[i]['children'].length; j++){
-            //div_response.appendChild(document.createTextNode(json[i]['children'][j]['hostid']));
+
             div_response.appendChild(document.createTextNode(j+1+"："));
             div_response.appendChild(document.createTextNode(json[i]['children'][j]['name']));
             div_response.appendChild(document.createTextNode("("+json[i]['children'][j]['age']+"歳)"));
@@ -121,12 +198,16 @@
           var responseBtn = document.getElementById('response_button'+json[i]['id']);
           responseBtn.addEventListener('click',response_send);
 
-          var newWindowBtn = document.createElement("input");
-          newWindowBtn.type= 'button';
-          newWindowBtn.value= json[i]['id']+'の内容を新しいウィンドウで表示';
-          newWindowBtn.id='newWindowBtn'+json[i]['id'];
-          p2_response.appendChild(newWindowBtn);
-          newWindowBtn.addEventListener('click', newWindow);
+
+          var newWindowBtn2 = document.createElement("input");
+          newWindowBtn2.type= 'button';
+          newWindowBtn2.value= json[i]['id']+'の内容を新しいウィンドウで表示';
+          newWindowBtn2.id='newWindowBtn'+json[i]['id'];
+          p_massage.appendChild(newWindowBtn2);
+          newWindowBtn2.addEventListener('click', newWindow2);
+
+
+
         }
       }
     }
@@ -138,6 +219,10 @@
     var name = document.getElementById('name');
     var age = document.getElementById('age');
     var massage = document.getElementById('massage');
+    if(!name.value || !age.value || !massage.value){
+      alert("投稿内容を入力してください。")
+      return;
+    }
     var xhr = new XMLHttpRequest();
     var url = "./main_send.php?name="+encodeURIComponent(name.value)+"&age="+encodeURIComponent(age.value)
     +"&massage="+encodeURIComponent(massage.value);
@@ -160,6 +245,10 @@
     var name = document.getElementById("response_name"+hostid);
     var age = document.getElementById("response_age"+hostid);
     var massage = document.getElementById("response_massage"+hostid);
+    if(!name.value || !age.value || !massage.value){
+      alert("返信内容を入力してください。");
+      return;
+    }
     var url = "./response_send.php?hostid="+encodeURIComponent(hostid)+"&name="+encodeURIComponent(name.value)+"&age="+encodeURIComponent(age.value)+"&massage="+encodeURIComponent(massage.value);
     xhr.open('GET',url,true);
     xhr.onreadystatechange = function(){
@@ -201,50 +290,11 @@
   }
 
 
-  function newWindow(event){
-    var xhr = new XMLHttpRequest();
+
+  function newWindow2(event){
     var id = event.target.id.slice(12);
-    const win = window.open('newChat.html');
-    console.log(id);
-    var url = "./newWindow.php?id="+encodeURIComponent(id);
-    xhr.open('GET',url,true);
-    xhr.onreadystatechange = function(){
-      if(xhr.readyState === 4 && xhr.status === 200){
-        var result = xhr.responseText;
-        var json = JSON.parse(result);
-
-        win.addEventListener('load',()=> {
-          var main_name = win.document.getElementById('main_name');
-          var main_massage = win.document.getElementById('main_massage');
-          var div_response = win.document.getElementById('response');
-
-          main_name.appendChild(document.createTextNode(json[0]['id']+"："+json[0]['name']));
-          main_massage.appendChild(document.createTextNode(json[0]['massage']));
-          main_massage.appendChild(document.createElement("hr"));
-
-          for(var i = 0; i<json[0]['children'].length ; i++){
-            div_response.appendChild(document.createTextNode(i+1+"："+json[0]['children'][i]['name']));
-            div_response.appendChild(document.createElement("br"));
-            div_response.appendChild(document.createTextNode(json[0]['children'][i]['massage']));
-            div_response.appendChild(document.createElement("br"));
-            div_response.appendChild(document.createElement("br"));
-          }
-        })
-      }
-    }
-    xhr.send(null);
+    const win = window.open('newChat2.html?id='+id);
   }
-
-  // function openWindow() {
-  //   const win = window.open('./sub.html')
-  //   // console.log(win.document.body)
-  //   win.addEventListener('load', () => {
-  //     const elm = win.document.getElementById('hoge')
-  //     elm.innerText = 'hello'
-  //   })
-  // }
-
-
 
 
   //Google Mapを表示するための記述
@@ -325,7 +375,108 @@
       infoWindow[i].open(map, marker[i]); // 吹き出しの表示
     });
   }
+
+
+  var getMap = (function() {
+  function codeAddress(address) {
+   // google.maps.Geocoder()コンストラクタのインスタンスを生成
+   var geocoder = new google.maps.Geocoder();
+
+   // 地図表示に関するオプション
+   var mapOptions = {
+     zoom: 16,
+     mapTypeId: google.maps.MapTypeId.ROADMAP
+   };
+
+   /
+
+   //マーカー変数用意
+   var marker;
+
+   // geocoder.geocode()メソッドを実行
+   geocoder.geocode( { 'address': address}, function(results, status) {
+
+     // ジオコーディングが成功した場合
+     if (status == google.maps.GeocoderStatus.OK) {
+
+       // 変換した緯度・経度情報を地図の中心に表示
+       map.setCenter(results[0].geometry.location);
+       map.setZoom(14);
+
+       // マーカー設定
+       marker = new google.maps.Marker({
+         map: map,
+         position: results[0].geometry.location,
+         // icon: './baske/ball_marker.ico'
+       });
+       marker.setMap(null);
+
+     // ジオコーディングが成功しなかった場合
+     } else {
+       console.log('Geocode was not successful for the following reason: ' + status);
+     }
+
+   });
+
+   //マップをクリックで位置変更
+   map.addListener('click', function(e) {
+     getClickLatLng(e.latLng, map);
+   });
+
+   function getClickLatLng(lat_lng, map) {
+
+
+     // マーカーを設置
+     marker.setMap(null);
+
+     marker = new google.maps.Marker({
+       position: lat_lng,
+       map: map,
+     });
+     marker.setMap(null);
+
+     // 座標の中心をずらす
+     map.panTo(lat_lng);
+   }
+
+  }
+
+  //inputのvalueで検索して地図を表示
+  return {
+   getAddress: function() {
+     // ボタンに指定したid要素を取得
+     var button = document.getElementById("map_button");
+     var button1 = document.getElementById("pulldown");
+
+     // ボタンが押された時の処理
+     button.onclick = function() {
+       // フォームに入力された住所情報を取得
+       var address = document.getElementById("address").value;
+       // 取得した住所を引数に指定してcodeAddress()関数を実行
+
+       codeAddress(address);
+     }
+
+     button1.onclick = function() {
+       // フォームに入力された住所情報を取得
+       var address = document.getElementById("pullvalue").value;
+       // 取得した住所を引数に指定してcodeAddress()関数を実行
+       if(!address){
+         alert("住所を入れてください");
+         return;
+       }
+       codeAddress(address);
+     }
+   }
+  };
+
+  })();
+getMap.getAddress();
+
+
+
+
   </script>
-  <script src=""></script>
-</body>
+    <script src=""></script>
+  </body>
 </html>
